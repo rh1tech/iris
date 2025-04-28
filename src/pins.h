@@ -1,7 +1,6 @@
 #ifndef PINS_H
 #define PINS_H
 
-// vga output uses gpio pins 0,1,2,3,4,5,6,7,8
 // dvi output uses gpio pins 12,13,14,15,16,17,18,19
 
 #define PIN_BUZZER      28
