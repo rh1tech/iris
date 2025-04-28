@@ -451,15 +451,14 @@ static const struct MenuItemStruct __in_flash(".configmenus") screenPetsciiColor
      {'p', "Color 15 (light grey)", MI_PCOLOR15, NULL, 0, color_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") screenMenu[] =
-    {{'1', "Display type", 0, NULL, 0, displaytype_fn, &settings.Screen.display, 0, 2, 1, 0, {"Auto-detect", "DVI/HDMI", "VGA"}},
-     {'2', "Rows", 0, NULL, 0, NULL, &settings.Screen.rows, 10, 60, 1, 30},
-     {'3', "Columns", 0, NULL, 0, NULL, &settings.Screen.cols, 20, 80, 2, 80},
-     {'4', "Double size characters", 0, NULL, 0, NULL, &settings.Screen.dblchars, 0, 1, 1, 1, {"never", "if screen space allows"}},
-     {'5', "Show splash screen", 0, NULL, 0, NULL, &settings.Screen.splash, 0, 1, 1, 1, {"no", "yes"}},
-     {'6', "Blink period (frames)", 0, NULL, 0, NULL, &settings.Screen.blink, 2, 120, 2, 60},
-     {'7', "Color/Monochrome", 0, NULL, 0, NULL, &settings.Screen.mono, 0, 1, 1, 0, {"Color", "Monochrome"}},
-     {'8', "Ansi Colors", 0, screenAnsiColorMenu, NUM_MENU_ITEMS(screenAnsiColorMenu)},
-     {'9', "PETSCII Colors", 0, screenPetsciiColorMenu, NUM_MENU_ITEMS(screenPetsciiColorMenu)}};
+    {{'1', "Rows", 0, NULL, 0, NULL, &settings.Screen.rows, 10, 60, 1, 30},
+     {'2', "Columns", 0, NULL, 0, NULL, &settings.Screen.cols, 20, 80, 2, 80},
+     {'3', "Double size characters", 0, NULL, 0, NULL, &settings.Screen.dblchars, 0, 1, 1, 1, {"never", "if screen space allows"}},
+     {'4', "Show splash screen", 0, NULL, 0, NULL, &settings.Screen.splash, 0, 1, 1, 1, {"no", "yes"}},
+     {'5', "Blink period (frames)", 0, NULL, 0, NULL, &settings.Screen.blink, 2, 120, 2, 60},
+     {'6', "Color/Monochrome", 0, NULL, 0, NULL, &settings.Screen.mono, 0, 1, 1, 0, {"Color", "Monochrome"}},
+     {'7', "Ansi Colors", 0, screenAnsiColorMenu, NUM_MENU_ITEMS(screenAnsiColorMenu)},
+     {'8', "PETSCII Colors", 0, screenPetsciiColorMenu, NUM_MENU_ITEMS(screenPetsciiColorMenu)}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") userFontMenu[] =
     {{'1', "Upload font bitmap", 0, NULL, 0, user_font_upload_fn},
@@ -478,8 +477,8 @@ static const struct MenuItemStruct __in_flash(".configmenus") fontMenu[] =
      {'6', "Edit user font 4", MI_USERFONT4, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") usbMenu[] =
-    {{'1', "USB port mode", 0, NULL, 0, usbtype_fn, &settings.USB.mode, 0, 3, 1, 3, {"Disabled", "Device", "Host", "Auto-detect"}},
-     {'2', "USB CDC device mode", 0, NULL, 0, NULL, &settings.USB.cdcmode, 0, 3, 1, 2, {"Disabled", "Serial", "Pass-through", "Pass-through (terminal disabled)"}}};
+    // {{'1', "USB port mode", 0, NULL, 0, usbtype_fn, &settings.USB.mode, 0, 3, 1, 3, {"Disabled", "Device", "Host", "Auto-detect"}},
+    {{'1', "USB CDC device mode", 0, NULL, 0, NULL, &settings.USB.cdcmode, 0, 3, 1, 2, {"Disabled", "Serial", "Pass-through", "Pass-through (terminal disabled)"}}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") mainMenu[] =
     {{'1', "Serial settings", 0, serialMenu, NUM_MENU_ITEMS(serialMenu)},
@@ -495,17 +494,18 @@ static const struct MenuItemStruct __in_flash(".configmenus") mainMenu[] =
 
 static uint16_t get_current_usbmode()
 {
-  if (settings.USB.mode == CFG_USBMODE_AUTODETECT)
-  {
-    if (tuh_inited())
-      return CFG_USBMODE_HOST;
-    else if (tud_inited())
-      return CFG_USBMODE_DEVICE;
-    else
-      return CFG_USBMODE_OFF;
-  }
-  else
-    return settings.USB.mode;
+  // if (settings.USB.mode == CFG_USBMODE_AUTODETECT)
+  // {
+  //   if (tuh_inited())
+  //     return CFG_USBMODE_HOST;
+  //   else if (tud_inited())
+  //     return CFG_USBMODE_DEVICE;
+  //   else
+  //     return CFG_USBMODE_OFF;
+  // }
+  // else
+  //   return settings.USB.mode;
+  return CFG_USBMODE_HOST;
 }
 
 static uint16_t get_current_displaytype()
@@ -2352,9 +2352,9 @@ void INFLASHFUN config_show_splash()
        "x\017               (C) 2025 Mikhail Matveev                \016x",
        "x\017            https://github.com/rh1tech/iris            \016x",
        "tqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu",
-       "x\017         Forked from VersaTerm by David Hansel        \016x",
-       "x\017           Uses PicoDVI and TinyUSB libraries         \016x",
-       "x\017              Licensed under GPL Version 3            \016x",
+       "x\017         Forked from VersaTerm by David Hansel         \016x",
+       "x\017           Uses PicoDVI and TinyUSB libraries          \016x",
+       "x\017              Licensed under GPL Version 3             \016x",
        "mqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj\017"};
 
   if (settings.Screen.splash != 0)
