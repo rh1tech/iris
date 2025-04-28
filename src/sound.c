@@ -87,7 +87,7 @@ void sound_play_tone(uint16_t frequency, uint16_t duration_ms, uint8_t volume, b
 
       // PWM counter goes from 0-100, set the level (i.e. on->off switch point)
       // to 1-101 according to volume setting
-      pwm_set_chan_level(slice_num, PWM_CHAN_B, MIN(volume+1, 101));
+      pwm_set_chan_level(slice_num, PWM_CHAN_A, MIN(volume+1, 101));
   
       // set beep length
       halfwave_count = (frequency * 2 * duration_ms) / 1000;

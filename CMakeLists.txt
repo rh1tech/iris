@@ -12,14 +12,12 @@ add_compile_options(-Wall)
 #   cmake -DDVI_DEFAULT_SERIAL_CONFIG=pimoroni_demo_hdmi_cfg ..
 # then rebuild. This is applied via target_compile_definitions on each app
 # individually.
-set(DVI_DEFAULT_SERIAL_CONFIG "pico_sock_cfg" CACHE STRING
+set(DVI_DEFAULT_SERIAL_CONFIG "pimoroni_demo_hdmi_cfg" CACHE STRING
 	"Select a default pin configuration from common_dvi_pin_configs.h")
 
 include_directories(
 	lib/PicoDVI/software/include
-	lib/PicoVGA
 	)
 
 add_subdirectory(lib/PicoDVI/software/libdvi)
-add_subdirectory(lib/PicoVGA)
 add_subdirectory(src)

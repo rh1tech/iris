@@ -1,3 +1,7 @@
+**/*.bak
+build*
+.vscode
+
 # Prerequisites
 *.d
 
