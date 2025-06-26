@@ -122,6 +122,9 @@ void wait(uint32_t milliseconds)
 
 int main()
 {
+  gpio_init(15);
+  gpio_set_dir(15, true); // set as output
+  gpio_put(15, 0);
   // The following mechanism is fundamentally the same as the pico_bootsel_via_double_reset
   // library but that library uses a busy wait until the maximum time for the double-tap
   // has expired. Implementing it ourselves here instead allows to use that wait time
@@ -135,7 +138,7 @@ int main()
     // arm mechanism and set timeout
     for (i = 0; i < count_of(bootsel_magic); i++)
       bootsel_magic_ram[i] = bootsel_magic[i];
-    bootsel_timeout = make_timeout_time_ms(BOOTSEL_TIMEOUT_MS);
+      bootsel_timeout = make_timeout_time_ms(BOOTSEL_TIMEOUT_MS);
   }
   else
   {
@@ -200,6 +203,8 @@ int main()
   terminal_init();
   sound_init();
   config_show_splash();
+
+  gpio_put(15, 1);
 
   while (true)
     run_tasks(true);
