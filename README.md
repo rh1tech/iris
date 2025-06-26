@@ -25,4 +25,4 @@ Iris is open source and licensed under [GPL v3](LICENSE).
 
 ## Hardware Platform
 
-Iris is specifically designed for the [Protea](https://github.com/rh1tech/protea) development board, a custom hardware platform that provides the necessary interfaces and processing power for professional serial terminal operations. The Protea board integrates seamlessly with the software to deliver reliable, instant-access terminal functionality.
+Iris is specifically designed for the [Protea](https://github.com/rh1tech/protea) development board (powered by RP2040 micro controller), a custom hardware platform that provides the necessary interfaces and processing power for professional serial terminal operations. The Protea board integrates seamlessly with the software to deliver reliable, instant-access terminal functionality.
