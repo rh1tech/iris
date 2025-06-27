@@ -6,6 +6,8 @@ This project maintains full compatibility with the original VersaTerm feature se
 
 Iris is open source and licensed under [GPL v3](LICENSE).
 
+Documentation: [rh1.tech](https://rh1.tech/projects/iris)
+
 ## Features
 
 ### Core Functionality:
