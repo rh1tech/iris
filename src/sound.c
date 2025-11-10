@@ -1,4 +1,4 @@
-// Iris: Serial Terminal
+// IRIS: Serial Terminal
 // Copyright (C) 2024 Mikhail Matveev (@rh1tech)
 // Based on VersaTerm by David Hansel, copyright (C) 2022 David Hansel
 //
@@ -34,6 +34,8 @@ static uint32_t halfwave_len_us = 100;
 static uint32_t halfwave_count = 0;
 static bool     halfwave = false;
 static uint     slice_num = 0;
+static uint     slice = 0;
+static uint     chan = 0;
 
 
 // defined in main.c
@@ -71,6 +73,8 @@ bool sound_playing()
 
 void sound_play_tone(uint16_t frequency, uint16_t duration_ms, uint8_t volume, bool wait)
 {
+  // Force PWM mux on the pin
+  gpio_set_function(PIN_BUZZER, GPIO_FUNC_PWM);
   if( volume>0 )
     {
       // disable timer interrupt
@@ -100,21 +104,16 @@ void sound_play_tone(uint16_t frequency, uint16_t duration_ms, uint8_t volume, b
 }
 
 
-void sound_init()
-{
-  slice_num = pwm_gpio_to_slice_num(PIN_BUZZER);
+void sound_init() {
+  slice = pwm_gpio_to_slice_num(PIN_BUZZER);
+  chan  = pwm_gpio_to_channel(PIN_BUZZER);
 
-  // initialize pin to output 0 when set to SIO mode
-  gpio_init(PIN_BUZZER);
-  gpio_set_dir(PIN_BUZZER, true); // output
-  gpio_put(PIN_BUZZER, false);
-
-  // set PWM prescaler such that PWM counter runs at 10MHz
-  // wrap PWM counter over at 100 => 100kHz PWM frequency
+  // Prepare PWM config
   pwm_config config = pwm_get_default_config();
-  pwm_config_set_clkdiv(&config, clock_get_hz(clk_sys)/10000000);
-  pwm_init(slice_num, &config, false);
-  pwm_set_wrap(slice_num, 100);
+  float div = (float)clock_get_hz(clk_sys) / 10000000.0f;
+  pwm_config_set_clkdiv(&config, div);
+  pwm_init(slice, &config, false);
+  pwm_set_wrap(slice, 100);
 
   // prepare timer for alarm
   hw_set_bits(&timer_hw->inte, 1u << TIMER_ALARM);

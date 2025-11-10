@@ -1,4 +1,4 @@
-// Iris: Serial Terminal
+// IRIS: Serial Terminal
 // Copyright (C) 2024 Mikhail Matveev (@rh1tech)
 // Based on VersaTerm by David Hansel, copyright (C) 2022 David Hansel
 //
@@ -16,6 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 // -----------------------------------------------------------------------------
+
+#define IRIS_VERSION "1.00"
 
 #ifndef CONFIG_H
 #define CONFIG_H

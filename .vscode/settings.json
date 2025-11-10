@@ -1,8 +1,12 @@
 {
     "cSpell.words": [
-        "Matveev"
+        "Matveev",
+        "XMODEM"
     ],
     "files.associations": {
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "print": "c",
+        "config.h": "c",
+        "pins.h": "c"
     }
 }

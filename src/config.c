@@ -1,4 +1,4 @@
-// Iris: Serial Terminal
+// IRIS: Serial Terminal
 // Copyright (C) 2024 Mikhail Matveev (@rh1tech)
 // Based on VersaTerm by David Hansel, copyright (C) 2022 David Hansel
 //
@@ -245,6 +245,12 @@ struct SettingsStruct
     uint16_t reserved[8];
   } USB;
 
+  struct ProteaStruct
+  {
+    uint16_t sendCharAfterSplash;
+    uint16_t reserved[8];
+  } Protea;
+
   // must be last (macro data is added starting here)
   uint8_t keyboard_macros_start;
 };
@@ -360,18 +366,18 @@ static int user_font_view_fn(const struct MenuItemStruct *item, int callType, in
 static int user_font_graphics_mapping_fn(const struct MenuItemStruct *item, int callType, int row, int col);
 static int user_font_name_fn(const struct MenuItemStruct *item, int callType, int row, int col);
 static int bell_test_fn(const struct MenuItemStruct *item, int callType, int row, int col);
-static int displaytype_fn(const struct MenuItemStruct *item, int callType, int row, int col);
-static int usbtype_fn(const struct MenuItemStruct *item, int callType, int row, int col);
+static int initiate_xmodem_transfer_c_fn(const struct MenuItemStruct *item, int callType, int row, int col);
+static int initiate_xmodem_transfer_nak_fn(const struct MenuItemStruct *item, int callType, int row, int col);
 
 static const struct MenuItemStruct __in_flash(".configmenus") serialMenu[] =
-    {{'1', "Baud rate", 0, NULL, 0, baud_fn},
+    {{'1', "Baud Rate", 0, NULL, 0, baud_fn},
      {'2', "Bits", 0, NULL, 0, NULL, &settings.Serial.bits, 7, 8, 1, 8},
      {'3', "Parity", 0, NULL, 0, NULL, &settings.Serial.parity, 0, 4, 1, 0, {"none", "even", "odd", "mark", "space"}},
-     {'4', "Stop bits", 0, NULL, 0, NULL, &settings.Serial.stopbits, 1, 2, 1, 1},
-     {'5', "RTS control line", 0, NULL, 0, NULL, &settings.Serial.rtsmode, 0, 2, 1, 0, {"Always assert (always low)", "Never assert (always high)", "Assert when ready to receive"}},
-     {'6', "CTS control line", 0, NULL, 0, NULL, &settings.Serial.ctsmode, 0, 1, 1, 0, {"Ignore", "Only send data if asserted"}},
-     {'7', "XOn/XOff control", 0, NULL, 0, NULL, &settings.Serial.xonxoff, 0, 2, 1, 0, {"Disabled", "Enabled", "Enabled and FIFOs disabled"}},
-     {'8', "LED blink time (ms)", 0, NULL, 0, NULL, &settings.Serial.blink, 0, 1000, 25, 50}};
+     {'4', "Stop Bits", 0, NULL, 0, NULL, &settings.Serial.stopbits, 1, 2, 1, 1},
+     {'5', "RTS Control Line", 0, NULL, 0, NULL, &settings.Serial.rtsmode, 0, 2, 1, 0, {"Always assert (always low)", "Never assert (always high)", "Assert when ready to receive"}},
+     {'6', "CTS Control Line", 0, NULL, 0, NULL, &settings.Serial.ctsmode, 0, 1, 1, 0, {"Ignore", "Only send data if asserted"}},
+     {'7', "XOn/XOff Control", 0, NULL, 0, NULL, &settings.Serial.xonxoff, 0, 2, 1, 0, {"Disabled", "Enabled", "Enabled and FIFOs disabled"}},
+     {'8', "LED Blink Time (ms)", 0, NULL, 0, NULL, &settings.Serial.blink, 0, 1000, 25, 50}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") bellMenu[] =
     {{'1', "Beep Frequency (Hz)", 0, NULL, 0, NULL, &settings.Bell.sound_frequency, 200, 20000, 10, 440},
@@ -379,7 +385,7 @@ static const struct MenuItemStruct __in_flash(".configmenus") bellMenu[] =
      {'3', "Beep Duration (ms)", 0, NULL, 0, NULL, &settings.Bell.sound_duration, 0, 2000, 10, 100},
      {'4', "Flash Color", MI_FLASHCOLOR, NULL, 0, color_fn},
      {'5', "Flash Duration (frames)", 0, NULL, 0, NULL, &settings.Bell.visual_duration, 0, 60, 1, 0},
-     {'6', "Test bell", 0, NULL, 0, bell_test_fn}};
+     {'6', "Test Buzzer", 0, NULL, 0, bell_test_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") terminalMenu[] =
     {{'1', "Type", 0, NULL, 0, ttype_fn, &settings.Terminal.ttype, 0, 2, 1, 0, {"VT102/Ansi", "VT52", "PETSCII"}},
@@ -387,31 +393,31 @@ static const struct MenuItemStruct __in_flash(".configmenus") terminalMenu[] =
      {'3', "Receiving LF  (0x0a)", 0, NULL, 0, NULL, &settings.Terminal.recvLF, 0, 3, 1, 2, {"ignore", "CR", "LF", "CR+LF"}},
      {'4', "Receiving BS  (0x08)", 0, NULL, 0, NULL, &settings.Terminal.recvBS, 0, 2, 1, 1, {"ignore", "backspace", "backspace+space+backspace"}},
      {'5', "Receiving DEL (0x7f)", 0, NULL, 0, NULL, &settings.Terminal.recvDEL, 0, 2, 1, 2, {"ignore", "backspace", "backspace+space+backspace"}},
-     {'6', "Clear received bit 7", 0, NULL, 0, NULL, &settings.Terminal.clearBit7, 0, 1, 1, 0, {"off", "on"}},
-     {'7', "Send all uppercase", 0, NULL, 0, NULL, &settings.Terminal.uppercase, 0, 1, 1, 0, {"off", "on"}},
-     {'8', "Local echo", 0, NULL, 0, NULL, &settings.Terminal.echo, 0, 1, 1, 0, {"off", "on"}},
-     {'9', "Cursor shape", 0, NULL, 0, NULL, &settings.Terminal.cursor, 0, 2, 1, 0, {"static box", "blinking box", "underline"}},
-     {'a', "Smooth scroll delay (ms)", 0, NULL, 0, NULL, &settings.Terminal.scrolldelay, 0, 1000, 10, 170},
-     {'b', "Default background color", 0, NULL, 0, color16_fn, &settings.Terminal.bgcolor, 0, 15, 1, 0},
-     {'c', "Default text color", 0, NULL, 0, color16_fn, &settings.Terminal.fgcolor, 0, 15, 1, 7},
-     {'d', "Default text attributes", 0, NULL, 0, attr_fn, &settings.Terminal.attr, 0, 15, 1, 0},
-     {'e', "Answerback message", 0, NULL, 0, answerback_fn}};
+     {'6', "Clear Received Bit 7", 0, NULL, 0, NULL, &settings.Terminal.clearBit7, 0, 1, 1, 0, {"off", "on"}},
+     {'7', "Send All Uppercase", 0, NULL, 0, NULL, &settings.Terminal.uppercase, 0, 1, 1, 0, {"off", "on"}},
+     {'8', "Local Echo", 0, NULL, 0, NULL, &settings.Terminal.echo, 0, 1, 1, 0, {"off", "on"}},
+     {'9', "Cursor Shape", 0, NULL, 0, NULL, &settings.Terminal.cursor, 0, 2, 1, 0, {"static box", "blinking box", "underline"}},
+     {'a', "Smooth Scroll Delay (ms)", 0, NULL, 0, NULL, &settings.Terminal.scrolldelay, 0, 1000, 10, 170},
+     {'b', "Default Background Color", 0, NULL, 0, color16_fn, &settings.Terminal.bgcolor, 0, 15, 1, 0},
+     {'c', "Default Text Color", 0, NULL, 0, color16_fn, &settings.Terminal.fgcolor, 0, 15, 1, 7},
+     {'d', "Default Text Attributes", 0, NULL, 0, attr_fn, &settings.Terminal.attr, 0, 15, 1, 0},
+     {'e', "Answerback Message", 0, NULL, 0, answerback_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") keyboardMenu[] =
     {{'1', "Layout", 0, NULL, 0, NULL, &settings.Keyboard.layout, 0, 6, 1, 0, {"English (US)", "English (UK)", "French", "German", "Italian", "Belgian", "Spanish"}},
-     {'2', "Enter key sends", 0, NULL, 0, NULL, &settings.Keyboard.enter, 0, 4, 1, 0, {"CR", "LF", "CR+LF", "LF+CR", "nothing"}},
-     {'3', "Backspace key sends", 0, NULL, 0, NULL, &settings.Keyboard.backspace, 0, 3, 1, 0, {"backspace (0x08)", "delete (0x7f)", "underscore (0x5F)", "nothing"}},
-     {'4', "Delete key sends", 0, NULL, 0, NULL, &settings.Keyboard.delete, 0, 3, 1, 1, {"backspace (0x08)", "delete (0x7f)", "underscore (0x5F)", "nothing"}},
-     {'5', "Scroll Lock key", 0, NULL, 0, NULL, &settings.Keyboard.scrolllock, 0, 1, 1, 1, {"ignored", "prevents scrolling"}},
-     {'6', "Key repeat delay", 0, NULL, 0, NULL, &settings.Keyboard.repdelay, 0, 3, 1, 3, {"1000ms", "750ms", "500ms", "250ms"}},
-     {'7', "Key repeat rate", 0, NULL, 0, keyboard_reprate_fn, &settings.Keyboard.reprate, 0, 31, 1, 25},
-     {'8', "Key mapping", 0, NULL, 0, keyboard_key_mapping_fn},
-     {'9', "Keyboard macros", 0, NULL, 0, keyboard_macro_fn}};
+     {'2', "Enter Key Sends", 0, NULL, 0, NULL, &settings.Keyboard.enter, 0, 4, 1, 0, {"CR", "LF", "CR+LF", "LF+CR", "nothing"}},
+     {'3', "Backspace Key Sends", 0, NULL, 0, NULL, &settings.Keyboard.backspace, 0, 3, 1, 0, {"backspace (0x08)", "delete (0x7f)", "underscore (0x5F)", "nothing"}},
+     {'4', "Delete Key Sends", 0, NULL, 0, NULL, &settings.Keyboard.delete, 0, 3, 1, 1, {"backspace (0x08)", "delete (0x7f)", "underscore (0x5F)", "nothing"}},
+     {'5', "Scroll Lock Key", 0, NULL, 0, NULL, &settings.Keyboard.scrolllock, 0, 1, 1, 1, {"ignored", "prevents scrolling"}},
+     {'6', "Key Repeat Delay", 0, NULL, 0, NULL, &settings.Keyboard.repdelay, 0, 3, 1, 3, {"1000ms", "750ms", "500ms", "250ms"}},
+     {'7', "Key Repeat Rate", 0, NULL, 0, keyboard_reprate_fn, &settings.Keyboard.reprate, 0, 31, 1, 25},
+     {'8', "Key Mapping", 0, NULL, 0, keyboard_key_mapping_fn},
+     {'9', "Keyboard Macros", 0, NULL, 0, keyboard_macro_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") screenAnsiColorMenu[] =
-    {{'0', "Monochrome background", MI_COLOR_MONO_BG, NULL, 0, color_fn},
-     {'1', "Monochrome normal text", MI_COLOR_MONO_NORM, NULL, 0, color_fn},
-     {'2', "Monochrome bold text", MI_COLOR_MONO_BOLD, NULL, 0, color_fn},
+    {{'0', "Monochrome Background", MI_COLOR_MONO_BG, NULL, 0, color_fn},
+     {'1', "Monochrome Normal Text", MI_COLOR_MONO_NORM, NULL, 0, color_fn},
+     {'2', "Monochrome Bold Text", MI_COLOR_MONO_BOLD, NULL, 0, color_fn},
      {'a', "Color  0 (black)", MI_COLOR0, NULL, 0, color_fn},
      {'b', "Color  1 (red)", MI_COLOR1, NULL, 0, color_fn},
      {'c', "Color  2 (green)", MI_COLOR2, NULL, 0, color_fn},
@@ -430,9 +436,9 @@ static const struct MenuItemStruct __in_flash(".configmenus") screenAnsiColorMen
      {'p', "Color 15 (white)", MI_COLOR15, NULL, 0, color_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") screenPetsciiColorMenu[] =
-    {{'0', "Monochrome background", MI_PCOLOR_MONO_BG, NULL, 0, color_fn},
-     {'1', "Monochrome normal text", MI_PCOLOR_MONO_NORM, NULL, 0, color_fn},
-     {'2', "Monochrome bold text", MI_PCOLOR_MONO_BOLD, NULL, 0, color_fn},
+    {{'0', "Monochrome Background", MI_PCOLOR_MONO_BG, NULL, 0, color_fn},
+     {'1', "Monochrome Normal Text", MI_PCOLOR_MONO_NORM, NULL, 0, color_fn},
+     {'2', "Monochrome Bold Text", MI_PCOLOR_MONO_BOLD, NULL, 0, color_fn},
      {'a', "Color  0 (black)", MI_PCOLOR0, NULL, 0, color_fn},
      {'b', "Color  1 (white)", MI_PCOLOR1, NULL, 0, color_fn},
      {'c', "Color  2 (red)", MI_PCOLOR2, NULL, 0, color_fn},
@@ -453,58 +459,48 @@ static const struct MenuItemStruct __in_flash(".configmenus") screenPetsciiColor
 static const struct MenuItemStruct __in_flash(".configmenus") screenMenu[] =
     {{'1', "Rows", 0, NULL, 0, NULL, &settings.Screen.rows, 10, 60, 1, 30},
      {'2', "Columns", 0, NULL, 0, NULL, &settings.Screen.cols, 20, 80, 2, 80},
-     {'3', "Double size characters", 0, NULL, 0, NULL, &settings.Screen.dblchars, 0, 1, 1, 1, {"never", "if screen space allows"}},
-     {'4', "Show splash screen", 0, NULL, 0, NULL, &settings.Screen.splash, 0, 1, 1, 1, {"no", "yes"}},
-     {'5', "Blink period (frames)", 0, NULL, 0, NULL, &settings.Screen.blink, 2, 120, 2, 60},
+     {'3', "Double Size Characters", 0, NULL, 0, NULL, &settings.Screen.dblchars, 0, 1, 1, 1, {"never", "if screen space allows"}},
+     {'4', "Show Splash Screen", 0, NULL, 0, NULL, &settings.Screen.splash, 0, 1, 1, 1, {"no", "yes"}},
+     {'5', "Blink Period (frames)", 0, NULL, 0, NULL, &settings.Screen.blink, 2, 120, 2, 60},
      {'6', "Color/Monochrome", 0, NULL, 0, NULL, &settings.Screen.mono, 0, 1, 1, 0, {"Color", "Monochrome"}},
-     {'7', "Ansi Colors", 0, screenAnsiColorMenu, NUM_MENU_ITEMS(screenAnsiColorMenu)},
+     {'7', "ANSI Colors", 0, screenAnsiColorMenu, NUM_MENU_ITEMS(screenAnsiColorMenu)},
      {'8', "PETSCII Colors", 0, screenPetsciiColorMenu, NUM_MENU_ITEMS(screenPetsciiColorMenu)}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") userFontMenu[] =
-    {{'1', "Upload font bitmap", 0, NULL, 0, user_font_upload_fn},
-     {'2', "Font name", 0, NULL, 0, user_font_name_fn},
-     {'3', "Character height (read-only)", 0, NULL, 0, user_font_height_fn},
-     {'4', "Underline row", 0, NULL, 0, user_font_underline_fn},
-     {'5', "View font", 0, NULL, 0, user_font_view_fn},
-     {'6', "VT100 graphics characters", 0, NULL, 0, user_font_graphics_mapping_fn}};
+    {{'1', "Upload Font Bitmap", 0, NULL, 0, user_font_upload_fn},
+     {'2', "Font Name", 0, NULL, 0, user_font_name_fn},
+     {'3', "Character Height (read-only)", 0, NULL, 0, user_font_height_fn},
+     {'4', "Underline Row", 0, NULL, 0, user_font_underline_fn},
+     {'5', "View Font", 0, NULL, 0, user_font_view_fn},
+     {'6', "VT100 Graphics Characters", 0, NULL, 0, user_font_graphics_mapping_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") fontMenu[] =
-    {{'1', "Normal font", 0, NULL, 0, NULL, &settings.Screen.font, 1, 10, 1, 3, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "User 1", "User 2", "User 3", "User 4"}},
-     {'2', "Bold font", 0, NULL, 0, NULL, &settings.Screen.bfont, 0, 10, 1, 0, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "User 1", "User 2", "User 3", "User 4"}},
-     {'3', "Edit user font 1", MI_USERFONT1, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
-     {'4', "Edit user font 2", MI_USERFONT2, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
-     {'5', "Edit user font 3", MI_USERFONT3, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
-     {'6', "Edit user font 4", MI_USERFONT4, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn}};
+    {{'1', "Normal Font", 0, NULL, 0, NULL, &settings.Screen.font, 1, 10, 1, 3, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "User 1", "User 2", "User 3", "User 4"}},
+     {'2', "Bold Font", 0, NULL, 0, NULL, &settings.Screen.bfont, 0, 10, 1, 0, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "User 1", "User 2", "User 3", "User 4"}},
+     {'3', "Edit User Font 1", MI_USERFONT1, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
+     {'4', "Edit User Font 2", MI_USERFONT2, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
+     {'5', "Edit User Font 3", MI_USERFONT3, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
+     {'6', "Edit User Font 4", MI_USERFONT4, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn}};
 
-static const struct MenuItemStruct __in_flash(".configmenus") usbMenu[] =
-    // {{'1', "USB port mode", 0, NULL, 0, usbtype_fn, &settings.USB.mode, 0, 3, 1, 3, {"Disabled", "Device", "Host", "Auto-detect"}},
-    {{'1', "USB CDC device mode", 0, NULL, 0, NULL, &settings.USB.cdcmode, 0, 3, 1, 2, {"Disabled", "Serial", "Pass-through", "Pass-through (terminal disabled)"}}};
+static const struct MenuItemStruct __in_flash(".configmenus") proteaMenu[] =
+    {{'1', "Send Character On Start", 0, NULL, 0, NULL, &settings.Protea.sendCharAfterSplash, 0, 1, 1, 1, {"no", "yes"}},
+     {'2', "Initiate XMODEM Transfer (CRC)", 0, NULL, 0, initiate_xmodem_transfer_c_fn},
+     {'3', "Initiate XMODEM Transfer (Checksum)", 0, NULL, 0, initiate_xmodem_transfer_nak_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") mainMenu[] =
-    {{'1', "Serial settings", 0, serialMenu, NUM_MENU_ITEMS(serialMenu)},
-     {'2', "Terminal settings", 0, terminalMenu, NUM_MENU_ITEMS(terminalMenu)},
-     {'3', "Keyboard settings", 0, keyboardMenu, NUM_MENU_ITEMS(keyboardMenu)},
-     {'4', "Screen settings", 0, screenMenu, NUM_MENU_ITEMS(screenMenu)},
-     {'5', "Font settings", 0, fontMenu, NUM_MENU_ITEMS(fontMenu)},
-     {'6', "Bell settings", 0, bellMenu, NUM_MENU_ITEMS(bellMenu)},
-     {'7', "USB settings", 0, usbMenu, NUM_MENU_ITEMS(usbMenu)},
-     {'8', "Manage configurations", 0, NULL, 0, configs_fn}};
+    {{'1', "Serial", 0, serialMenu, NUM_MENU_ITEMS(serialMenu)},
+     {'2', "Terminal", 0, terminalMenu, NUM_MENU_ITEMS(terminalMenu)},
+     {'3', "Keyboard", 0, keyboardMenu, NUM_MENU_ITEMS(keyboardMenu)},
+     {'4', "Display", 0, screenMenu, NUM_MENU_ITEMS(screenMenu)},
+     {'5', "Font", 0, fontMenu, NUM_MENU_ITEMS(fontMenu)},
+     {'6', "Buzzer", 0, bellMenu, NUM_MENU_ITEMS(bellMenu)},
+     {'7', "Protea", 0, proteaMenu, NUM_MENU_ITEMS(proteaMenu)},
+     {'8', "Configurations", 0, NULL, 0, configs_fn}};
 
 // -----------------------------------------------------------------------------------------------------------------
 
 static uint16_t get_current_usbmode()
 {
-  // if (settings.USB.mode == CFG_USBMODE_AUTODETECT)
-  // {
-  //   if (tuh_inited())
-  //     return CFG_USBMODE_HOST;
-  //   else if (tud_inited())
-  //     return CFG_USBMODE_DEVICE;
-  //   else
-  //     return CFG_USBMODE_OFF;
-  // }
-  // else
-  //   return settings.USB.mode;
   return CFG_USBMODE_HOST;
 }
 
@@ -618,6 +614,11 @@ bool config_get_terminal_uppercase()
 uint16_t config_get_terminal_scrolldelay()
 {
   return settings.Terminal.scrolldelay;
+}
+
+uint16_t config_get_protea_send_char()
+{
+  return settings.Protea.sendCharAfterSplash;
 }
 
 uint8_t config_get_terminal_default_fg()
@@ -998,6 +999,32 @@ static int INFLASHFUN user_font_view_fn(const struct MenuItemStruct *item, int c
     res = 1;
   }
 
+  return res;
+}
+
+static int INFLASHFUN initiate_xmodem_transfer_c_fn(const struct MenuItemStruct *item, int callType, int row, int col)
+{
+  int res = 0;
+  if (callType == IFT_QUERY)
+    res = IFT_EDIT;
+  else if (callType == IFT_EDIT)
+  {
+    uint8_t ch = 'C';
+    serial_send_char(&ch);
+  }
+  return res;
+}
+
+static int INFLASHFUN initiate_xmodem_transfer_nak_fn(const struct MenuItemStruct *item, int callType, int row, int col)
+{
+  int res = 0;
+  if (callType == IFT_QUERY)
+    res = IFT_EDIT;
+  else if (callType == IFT_EDIT)
+  {
+    uint8_t ch = 0x15; // NAK
+    serial_send_char(&ch);
+  }
   return res;
 }
 
@@ -2089,7 +2116,7 @@ static int INFLASHFUN answerback_fn(const struct MenuItemStruct *item, int callT
     print("\033[?25l\033[%i;%iH%s\033[%i;%iH", row, col, settings.Terminal.answerback, row, col);
   }
   else if (callType == IFT_DEFAULT)
-    strcpy(settings.Terminal.answerback, "Iris 1.0");
+    strcpy(settings.Terminal.answerback, "IRIS " IRIS_VERSION);
 
   return res;
 }
@@ -2107,38 +2134,6 @@ static int INFLASHFUN bell_test_fn(const struct MenuItemStruct *item, int callTy
                     config_get_audible_bell_volume(),
                     false);
     framebuf_flash_screen(config_get_visual_bell_color(), config_get_visual_bell_duration());
-  }
-
-  return res;
-}
-
-static int INFLASHFUN displaytype_fn(const struct MenuItemStruct *item, int callType, int row, int col)
-{
-  int res = 0;
-
-  if (callType == IFT_QUERY)
-    res = IFT_PRINT;
-  else if (callType == IFT_PRINT)
-  {
-    print("%s", item->valueLabels[settings.Screen.display]);
-    if (settings.Screen.display == 0)
-      print(" (currently %s)", item->valueLabels[get_current_displaytype()]);
-  }
-
-  return res;
-}
-
-static int usbtype_fn(const struct MenuItemStruct *item, int callType, int row, int col)
-{
-  int res = 0;
-
-  if (callType == IFT_QUERY)
-    res = IFT_PRINT;
-  else if (callType == IFT_PRINT)
-  {
-    print("%s", item->valueLabels[settings.USB.mode]);
-    if (settings.USB.mode == CFG_USBMODE_AUTODETECT)
-      print(" (currently %s)", item->valueLabels[get_current_usbmode()]);
   }
 
   return res;
@@ -2346,16 +2341,18 @@ void INFLASHFUN handleMenu(const char *title, const struct MenuItemStruct *items
 
 void INFLASHFUN config_show_splash()
 {
-  static const char __in_flash(".configmenus") splash[9][80] =
-      {"\016lqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk\n",
-       "x\017                 Iris: Serial Terminal                 \016x",
-       "x\017               (C) 2025 Mikhail Matveev                \016x",
-       "x\017            https://github.com/rh1tech/iris            \016x",
-       "tqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu",
-       "x\017         Forked from VersaTerm by David Hansel         \016x",
-       "x\017           Uses PicoDVI and TinyUSB libraries          \016x",
-       "x\017              Licensed under GPL Version 3             \016x",
-       "mqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj\017"};
+  static const char __in_flash(".configmenus") splash[10][80] =
+      {
+          "\016lqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk\n",
+          "\016x\017\033[47m\033[1;30m\xB2\xB1\xB0        PROTEA: SERIAL TERMINAL EMULATOR         \xB0\xB1\xB2\033[0m\016x",
+          "\016tqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu",
+          "\016x\017 Powered by IRIS firmware version " IRIS_VERSION "                 \016x",
+          "\016x\017 Documentation and updates: https://rh1.tech           \016x",
+          "\016x\017 (C) 2025 Mikhail Matveev, GPL Version 3 License       \016x",
+          "\016tqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu",
+          "\016x\017 Press \033[42;37;5m ENTER \033[0m to continue                             \016x",
+          "\016mqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj\017",
+          "  \xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0\xB0"};
 
   if (settings.Screen.splash != 0)
   {
@@ -2366,11 +2363,20 @@ void INFLASHFUN config_show_splash()
     int top = framebuf_get_nrows() / 2 - 5;
     int left = framebuf_get_ncols(-1) / 2 - 29;
     print("\033[?25l\033)0\033[%i;1H", top);
-    printLines(top, left, 9, splash);
+    printLines(top, left, 10, splash);
     // while (keyboard_num_keypress() == 0 && !serial_readable())
-    while (keyboard_num_keypress() == 0)
-      run_tasks(false);
-
+    // while (keyboard_num_keypress() == 0)
+    // run_tasks(false);
+    while (true)
+    {
+      if (tuh_inited())
+        tuh_task();
+      if (tud_inited())
+        tud_task();
+      keyboard_task();
+      if (keyboard_read_keypress() == HID_KEY_ENTER)
+        break;
+    }
     menuActive = false;
     framebuf_apply_settings();
     terminal_apply_settings();

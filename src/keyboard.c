@@ -1,4 +1,4 @@
-// Iris: Serial Terminal
+// IRIS: Serial Terminal
 // Copyright (C) 2024 Mikhail Matveev (@rh1tech)
 // Based on VersaTerm by David Hansel, copyright (C) 2022 David Hansel
 //
@@ -19,7 +19,7 @@
 
 #include "keyboard.h"
 #include "keyboard_usb.h"
-#include "keyboard_ps2.h"
+// #include "keyboard_ps2.h"
 #include "config.h"
 #include "flash.h"
 #include "sound.h"
@@ -507,7 +507,7 @@ static void INFLASHFUN process_led_keys(uint8_t key, uint8_t modifier)
   if( keyboard_led_status != status )
     {
       keyboard_usb_set_led_status(keyboard_led_status);
-      keyboard_ps2_set_led_status(keyboard_led_status);
+      // keyboard_ps2_set_led_status(keyboard_led_status);
     }
 }
 
@@ -747,7 +747,7 @@ uint8_t INFLASHFUN keyboard_get_led_status()
 void INFLASHFUN keyboard_task()
 {
   keyboard_usb_task();
-  keyboard_ps2_task();
+  // keyboard_ps2_task();
 }
 
 
@@ -757,7 +757,7 @@ void INFLASHFUN keyboard_apply_settings()
 
   keyboardLanguage = config_get_keyboard_layout();
   keyboard_usb_apply_settings();
-  keyboard_ps2_apply_settings();
+  // keyboard_ps2_apply_settings();
 }
 
 
@@ -766,7 +766,7 @@ void INFLASHFUN keyboard_init()
   keyboard_apply_settings();
   queue_init(&keyboard_queue, 1, 32);
   keyboard_usb_init();
-  keyboard_ps2_init();
+  // keyboard_ps2_init();
 }
 
 

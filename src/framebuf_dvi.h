@@ -1,4 +1,4 @@
-// Iris: Serial Terminal
+// IRIS: Serial Terminal
 // Copyright (C) 2024 Mikhail Matveev (@rh1tech)
 // Based on VersaTerm by David Hansel, copyright (C) 2022 David Hansel
 //

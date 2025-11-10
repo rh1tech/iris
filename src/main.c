@@ -1,4 +1,4 @@
-// Iris: Serial Terminal
+// IRIS: Serial Terminal
 // Copyright (C) 2024 Mikhail Matveev (@rh1tech)
 // Based on VersaTerm by David Hansel, copyright (C) 2022 David Hansel
 //
@@ -124,7 +124,7 @@ int main()
 {
   gpio_init(15);
   gpio_set_dir(15, true); // set as output
-  gpio_put(15, 0);
+  gpio_put(15, 1);
   // The following mechanism is fundamentally the same as the pico_bootsel_via_double_reset
   // library but that library uses a busy wait until the maximum time for the double-tap
   // has expired. Implementing it ourselves here instead allows to use that wait time
@@ -138,7 +138,7 @@ int main()
     // arm mechanism and set timeout
     for (i = 0; i < count_of(bootsel_magic); i++)
       bootsel_magic_ram[i] = bootsel_magic[i];
-      bootsel_timeout = make_timeout_time_ms(BOOTSEL_TIMEOUT_MS);
+    bootsel_timeout = make_timeout_time_ms(BOOTSEL_TIMEOUT_MS);
   }
   else
   {
@@ -154,22 +154,7 @@ int main()
   stdio_uart_init_full(PIN_UART_ID, 300, PIN_UART_TX, PIN_UART_RX);
   serial_init();
 
-  // initialize USB (needed for keyboard)
-  if (config_get_usb_mode() == 1)
-    tud_init(TUD_OPT_RHPORT);
-  else if (config_get_usb_mode() == 2)
-    tuh_init(TUH_OPT_RHPORT);
-  else if (config_get_usb_mode() == 3)
-  {
-    // GPIO24 is high if the Pico's on-board USB port is connected to power (i.e. a host)
-    // In that case we want to be a device, otherwise a host
-    gpio_init(24);
-    gpio_set_dir(24, false); // input
-    if (gpio_get(24))
-      tud_init(TUH_OPT_RHPORT);
-    else
-      tuh_init(TUH_OPT_RHPORT);
-  }
+  tuh_init(TUH_OPT_RHPORT);
 
   // initialize keyboard
   keyboard_init();
@@ -202,10 +187,13 @@ int main()
 
   terminal_init();
   sound_init();
+  // gpio_put(15, 1);
   config_show_splash();
-
-  gpio_put(15, 1);
-
+  terminal_clear_screen();
+  if (config_get_protea_send_char() != 0)
+  {
+    serial_send_char('\r');
+  }
   while (true)
     run_tasks(true);
 }
