@@ -42,6 +42,7 @@
 #include "font_cga.h"
 #include "font_ega.h"
 #include "font_vga.h"
+#include "font_vga_cp866.h"
 #include "font_terminus.h"
 #include "font_terminus_bold.h"
 #include "font_petscii.h"
@@ -102,6 +103,12 @@ static uint8_t __attribute__((aligned(4), section(_IMG_ASSET_SECTION ".font"))) 
 static uint8_t __attribute__((aligned(4), section(_IMG_ASSET_SECTION ".font"))) font_blinkon[8*256*16];
 
 
+uint8_t font_get_current_id()
+{
+  return cur_font_normal;
+}
+
+
 bool font_have_boldfont()
 {
   return cur_font_normal != cur_font_bold;
@@ -137,6 +144,7 @@ const uint8_t *font_get_bmpdata(uint8_t fontNum)
     case FONT_ID_TERM:     return font_terminus_bmp;
     case FONT_ID_TERMBOLD: return font_terminus_bold_bmp;
     case FONT_ID_PETSCII:  return font_petscii_bmp;
+    case FONT_ID_CP866:    return font_vga_cp866_bmp;
     case FONT_ID_USER1:
     case FONT_ID_USER2:
     case FONT_ID_USER3:
@@ -164,6 +172,7 @@ bool INFLASHFUN font_get_font_info(uint8_t fontNum, uint32_t *bitmapWidth, uint3
       break;
 
     case FONT_ID_VGA:
+    case FONT_ID_CP866:
     case FONT_ID_TERM:
     case FONT_ID_TERMBOLD:
       bh=64; bw=512; ch=16;ur=14; 
@@ -207,6 +216,7 @@ const INFLASHFUN char *font_get_name(uint8_t fontNum)
     case FONT_ID_TERM:     return "Terminus";
     case FONT_ID_TERMBOLD: return "Terminus bold";
     case FONT_ID_PETSCII:  return "PETSCII";
+    case FONT_ID_CP866:    return "VGA CP866";
     case FONT_ID_USER1: 
     case FONT_ID_USER2:
     case FONT_ID_USER3:

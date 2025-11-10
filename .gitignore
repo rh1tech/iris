@@ -56,3 +56,6 @@ Mkfile.old
 dkms.conf
 /build
 .DS_Store
+/__pycache__
+.DS_Store
+.DS_Store

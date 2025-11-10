@@ -23,6 +23,7 @@
 #include "config.h"
 #include "flash.h"
 #include "sound.h"
+#include "font.h"
 #include "pico/util/queue.h"
 #include "pico/time.h"
 #include <ctype.h>
@@ -296,6 +297,69 @@ static const int keyMapKeypadNum[] = {'\\', '*', '-', '+', KEY_ENTER , '1', '2',
 static const int keyMapSpecial[]   = {KEY_PAUSE, KEY_INSERT, KEY_HOME, KEY_PUP, KEY_DELETE, KEY_END, KEY_PDOWN, KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP};
 
 static uint8_t keyboardLanguage = 0;
+static bool    russianMode = false;  // True when Right Alt toggles to Russian (CP866) layout
+
+// CP866 Russian keyboard layout mapping (ЙЦУКЕН layout)
+// Maps English QWERTY keys to Russian CP866 character codes
+static const uint8_t cp866_russian_map_lower[26] = {
+  // a-z (HID_KEY_A to HID_KEY_Z) -> Russian lowercase letters
+  228, // a -> ф
+  168, // b -> и  
+  225, // c -> с
+  162, // d -> в
+  227, // e -> у
+  160, // f -> а
+  175, // g -> п
+  224, // h -> р
+  232, // i -> ш
+  174, // j -> о
+  171, // k -> л
+  164, // l -> д
+  236, // m -> ь
+  226, // n -> т
+  233, // o -> щ
+  167, // p -> з
+  169, // q -> й
+  170, // r -> к
+  235, // s -> ы
+  165, // t -> е
+  163, // u -> г
+  172, // v -> м
+  230, // w -> ц
+  231, // x -> ч
+  173, // y -> н
+  239  // z -> я
+};
+
+static const uint8_t cp866_russian_map_upper[26] = {
+  // A-Z (shift pressed) -> Russian uppercase letters
+  148, // A -> Ф
+  136, // B -> И
+  145, // C -> С
+  130, // D -> В
+  147, // E -> У
+  128, // F -> А
+  143, // G -> П
+  144, // H -> Р
+  152, // I -> Ш
+  142, // J -> О
+  139, // K -> Л
+  132, // L -> Д
+  156, // M -> Ь
+  146, // N -> Т
+  153, // O -> Щ
+  135, // P -> З
+  137, // Q -> Й
+  138, // R -> К
+  155, // S -> Ы
+  133, // T -> Е
+  131, // U -> Г
+  140, // V -> М
+  150, // W -> Ц
+  151, // X -> Ч
+  141, // Y -> Н
+  159  // Z -> Я
+};
 
 
 uint8_t INFLASHFUN keyboard_map_key_ascii(uint16_t k, bool *isaltcode)
@@ -344,13 +408,25 @@ uint8_t INFLASHFUN keyboard_map_key_ascii(uint16_t k, bool *isaltcode)
       bool shift = (modifier & (KEYBOARD_MODIFIER_LEFTSHIFT|KEYBOARD_MODIFIER_RIGHTSHIFT))!=0;
       bool caps  = (key >= HID_KEY_A) && (key <= HID_KEY_Z) && (keyboard_led_status & KEYBOARD_LED_CAPSLOCK)!=0;
 
-      if( shift ^ caps )
-        ascii = map->mapShift[key];
+      // Apply Russian mapping if Russian mode is active and CP866 font is being used
+      if( russianMode && font_get_current_id() == FONT_ID_CP866 && key >= HID_KEY_A && key <= HID_KEY_Z )
+        {
+          // Map A-Z keys to Russian CP866 characters
+          if( shift ^ caps )
+            ascii = cp866_russian_map_upper[key - HID_KEY_A];
+          else
+            ascii = cp866_russian_map_lower[key - HID_KEY_A];
+        }
       else
-        ascii = map->mapNormal[key];
-      
-      if( ctrl && ascii>=0x40 && ascii<0x7f )
-        ascii &= 0x1f;
+        {
+          if( shift ^ caps )
+            ascii = map->mapShift[key];
+          else
+            ascii = map->mapNormal[key];
+          
+          if( ctrl && ascii>=0x40 && ascii<0x7f )
+            ascii &= 0x1f;
+        }
     }
   else if( (key >= HID_KEY_PAUSE) && (key <= HID_KEY_ARROW_UP) )
     {
@@ -585,6 +661,14 @@ void keyboard_key_change(uint8_t key, bool make)
             keyboard_modifiers |= mod;
           else 
             keyboard_modifiers &= ~mod;
+          
+          // Toggle Russian mode on Right Alt press (only for CP866 font)
+          if( key == HID_KEY_ALT_RIGHT && make && font_get_current_id() == FONT_ID_CP866 )
+            {
+              russianMode = !russianMode;
+              // Optional: play a tone to indicate language switch
+              sound_play_tone(russianMode ? 1000 : 800, 30, config_get_audible_bell_volume(), false);
+            }
         }
       else if( make ) 
         keyboard_add_keypress(key, keyboard_modifiers);
@@ -729,6 +813,12 @@ bool keyboard_ctrl_pressed(uint16_t key)
 bool keyboard_alt_pressed(uint16_t key)
 {
   return (key & ((KEYBOARD_MODIFIER_LEFTALT|KEYBOARD_MODIFIER_RIGHTALT)<<8))!=0;
+}
+
+
+bool keyboard_russian_mode()
+{
+  return russianMode && font_get_current_id() == FONT_ID_CP866;
 }
 
 

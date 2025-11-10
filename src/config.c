@@ -343,7 +343,7 @@ struct MenuItemStruct
   uint16_t *value;
 
   uint16_t min, max, step, def;
-  const char valueLabels[11][40];
+  const char valueLabels[12][40];
 };
 
 #define NUM_MENU_ITEMS(menu) (sizeof(menu) / sizeof(struct MenuItemStruct))
@@ -475,8 +475,8 @@ static const struct MenuItemStruct __in_flash(".configmenus") userFontMenu[] =
      {'6', "VT100 Graphics Characters", 0, NULL, 0, user_font_graphics_mapping_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") fontMenu[] =
-    {{'1', "Normal Font", 0, NULL, 0, NULL, &settings.Screen.font, 1, 10, 1, 3, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "User 1", "User 2", "User 3", "User 4"}},
-     {'2', "Bold Font", 0, NULL, 0, NULL, &settings.Screen.bfont, 0, 10, 1, 0, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "User 1", "User 2", "User 3", "User 4"}},
+    {{'1', "Normal Font", 0, NULL, 0, NULL, &settings.Screen.font, 1, 11, 1, 3, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "VGA CP866", "User 1", "User 2", "User 3", "User 4"}},
+     {'2', "Bold Font", 0, NULL, 0, NULL, &settings.Screen.bfont, 0, 11, 1, 0, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "VGA CP866", "User 1", "User 2", "User 3", "User 4"}},
      {'3', "Edit User Font 1", MI_USERFONT1, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
      {'4', "Edit User Font 2", MI_USERFONT2, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
      {'5', "Edit User Font 3", MI_USERFONT3, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},

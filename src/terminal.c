@@ -1366,6 +1366,13 @@ static void INFLASHFUN terminal_process_key_petscii(uint16_t key)
   // if c is the result of user pressing LeftAlt-NNN then send without mapping
   if( isaltcode ) { send_char(c); return; }
 
+  // if in Russian mode (CP866 font), pass through characters >= 128 unchanged
+  if( keyboard_russian_mode() && c >= 128 )
+    {
+      send_char(c);
+      return;
+    }
+
   switch( c )
     {
     case KEY_UP:        cc = 145; break;

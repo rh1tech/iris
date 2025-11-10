@@ -76,6 +76,7 @@ uint8_t  keyboard_get_current_modifiers();
 bool     keyboard_ctrl_pressed(uint16_t key);
 bool     keyboard_alt_pressed(uint16_t key);
 bool     keyboard_shift_pressed(uint16_t key);
+bool     keyboard_russian_mode();
 uint8_t  keyboard_map_key_ascii(uint16_t key, bool *isaltcode);
 
 void    keyboard_macro_record_start();
