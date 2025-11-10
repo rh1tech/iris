@@ -42,5 +42,10 @@ target_link_libraries(Iris
         tinyusb_device
 )
 
+# Suppress standard embedded systems linker warnings
+target_link_options(Iris PRIVATE
+	"LINKER:--no-warn-rwx-segments"
+)
+
 # create map/bin/hex file etc.
 pico_add_extra_outputs(Iris)

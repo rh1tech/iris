@@ -8,6 +8,10 @@ pico_sdk_init()
 
 add_compile_options(-Wall)
 
+# Suppress false positive warnings from pico-sdk when building with newer GCC
+# These warnings are for intentional hardware memory access at fixed addresses
+add_compile_options(-Wno-array-bounds)
+
 # To change the default serial config for all apps, pass e.g.
 #   cmake -DDVI_DEFAULT_SERIAL_CONFIG=pimoroni_demo_hdmi_cfg ..
 # then rebuild. This is applied via target_compile_definitions on each app

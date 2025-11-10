@@ -20,6 +20,9 @@
 #ifndef FONT_H
 #define FONT_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #define FONT_CHAR_WIDTH  8
 
 #define FONT_ID_NONE     0

@@ -1010,7 +1010,7 @@ static int INFLASHFUN initiate_xmodem_transfer_c_fn(const struct MenuItemStruct 
   else if (callType == IFT_EDIT)
   {
     uint8_t ch = 'C';
-    serial_send_char(&ch);
+    serial_send_char(ch);
   }
   return res;
 }
@@ -1023,7 +1023,7 @@ static int INFLASHFUN initiate_xmodem_transfer_nak_fn(const struct MenuItemStruc
   else if (callType == IFT_EDIT)
   {
     uint8_t ch = 0x15; // NAK
-    serial_send_char(&ch);
+    serial_send_char(ch);
   }
   return res;
 }
@@ -1096,7 +1096,7 @@ static int INFLASHFUN user_font_graphics_mapping_fn(const struct MenuItemStruct 
         if (c != 27)
         {
           int n = atoi(buf);
-          mapping[i] = i < 256 ? n : 255;
+          mapping[i] = n < 256 ? n : 255;
           if (c != 13)
             continue;
         }
