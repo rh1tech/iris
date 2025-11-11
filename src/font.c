@@ -43,6 +43,8 @@
 #include "font_ega.h"
 #include "font_vga.h"
 #include "font_vga_cp866.h"
+#include "font_vga_win1251.h"
+#include "font_vga_koi8r.h"
 #include "font_terminus.h"
 #include "font_terminus_bold.h"
 #include "font_petscii.h"
@@ -145,6 +147,8 @@ const uint8_t *font_get_bmpdata(uint8_t fontNum)
     case FONT_ID_TERMBOLD: return font_terminus_bold_bmp;
     case FONT_ID_PETSCII:  return font_petscii_bmp;
     case FONT_ID_CP866:    return font_vga_cp866_bmp;
+    case FONT_ID_WIN1251:  return font_vga_win1251_bmp;
+    case FONT_ID_KOI8R:    return font_vga_koi8r_bmp;
     case FONT_ID_USER1:
     case FONT_ID_USER2:
     case FONT_ID_USER3:
@@ -173,6 +177,8 @@ bool INFLASHFUN font_get_font_info(uint8_t fontNum, uint32_t *bitmapWidth, uint3
 
     case FONT_ID_VGA:
     case FONT_ID_CP866:
+    case FONT_ID_WIN1251:
+    case FONT_ID_KOI8R:
     case FONT_ID_TERM:
     case FONT_ID_TERMBOLD:
       bh=64; bw=512; ch=16;ur=14; 
@@ -217,6 +223,7 @@ const INFLASHFUN char *font_get_name(uint8_t fontNum)
     case FONT_ID_TERMBOLD: return "Terminus bold";
     case FONT_ID_PETSCII:  return "PETSCII";
     case FONT_ID_CP866:    return "VGA CP866";
+    case FONT_ID_WIN1251:  return "VGA Win1251";
     case FONT_ID_USER1: 
     case FONT_ID_USER2:
     case FONT_ID_USER3:

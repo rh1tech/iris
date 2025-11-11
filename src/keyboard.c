@@ -361,6 +361,231 @@ static const uint8_t cp866_russian_map_upper[26] = {
   159  // Z -> Я
 };
 
+// Russian punctuation and special characters mapping
+// Maps HID key codes to CP866 characters
+static const struct {
+  uint8_t key;
+  uint8_t normal;
+  uint8_t shift;
+} cp866_russian_punctuation[] = {
+  // Number row with shift symbols: !"№;%:?*()
+  {HID_KEY_1, '1', '!'},   // 1 !
+  {HID_KEY_2, '2', '"'},   // 2 "
+  {HID_KEY_3, '3', 0xFC},  // 3 № (numero sign, CP866: 252)
+  {HID_KEY_4, '4', ';'},   // 4 ;
+  {HID_KEY_5, '5', '%'},   // 5 %
+  {HID_KEY_6, '6', ':'},   // 6 :
+  {HID_KEY_7, '7', '?'},   // 7 ?
+  {HID_KEY_8, '8', '*'},   // 8 *
+  {HID_KEY_9, '9', '('},   // 9 (
+  {HID_KEY_0, '0', ')'},   // 0 )
+  {HID_KEY_MINUS, '-', '_'},       // - _
+  {HID_KEY_EQUAL, '=', '+'},       // = +
+  
+  // Punctuation keys
+  {HID_KEY_BRACKET_LEFT,  229, 149},   // [ -> х (229), Х (149) 
+  {HID_KEY_BRACKET_RIGHT, 234, 154},   // ] -> ъ (234), Ъ (154)
+  {HID_KEY_SEMICOLON,     166, 134},   // ; -> ж (166), Ж (134)
+  {HID_KEY_APOSTROPHE,    237, 157},   // ' -> э (237), Э (157)
+  {HID_KEY_GRAVE,         184, 240},   // ` -> ё (184), Ё (240)
+  {HID_KEY_BACKSLASH,     92,  47},    // \ -> \, / (note: Russian has \ and /)
+  {HID_KEY_COMMA,         161, 129},   // , -> б (161), Б (129)
+  {HID_KEY_PERIOD,        238, 158},   // . -> ю (238), Ю (158)
+  {HID_KEY_SLASH,         46,  44},    // / -> ., ,
+  {0, 0, 0} // terminator
+};
+
+// Windows-1251 Russian keyboard layout mapping (ЙЦУКЕН layout)
+// Maps English QWERTY keys to Russian Windows-1251 character codes
+static const uint8_t win1251_russian_map_lower[26] = {
+  // a-z (HID_KEY_A to HID_KEY_Z) -> Russian lowercase letters (224-255)
+  244, // a -> ф (224+20)
+  232, // b -> и (224+8)
+  241, // c -> с (224+17)
+  226, // d -> в (224+2)
+  243, // e -> у (224+19)
+  224, // f -> а (224+0)
+  239, // g -> п (224+15)
+  240, // h -> р (224+16)
+  248, // i -> ш (224+24)
+  238, // j -> о (224+14)
+  235, // k -> л (224+11)
+  228, // l -> д (224+4)
+  252, // m -> ь (224+28)
+  242, // n -> т (224+18)
+  249, // o -> щ (224+25)
+  231, // p -> з (224+7)
+  233, // q -> й (224+9)
+  234, // r -> к (224+10)
+  251, // s -> ы (224+27)
+  229, // t -> е (224+5)
+  227, // u -> г (224+3)
+  236, // v -> м (224+12)
+  246, // w -> ц (224+22)
+  247, // x -> ч (224+23)
+  237, // y -> н (224+13)
+  255  // z -> я (224+31)
+};
+
+static const uint8_t win1251_russian_map_upper[26] = {
+  // A-Z (shift pressed) -> Russian uppercase letters (192-223)
+  212, // A -> Ф (192+20)
+  200, // B -> И (192+8)
+  209, // C -> С (192+17)
+  194, // D -> В (192+2)
+  211, // E -> У (192+19)
+  192, // F -> А (192+0)
+  207, // G -> П (192+15)
+  208, // H -> Р (192+16)
+  216, // I -> Ш (192+24)
+  206, // J -> О (192+14)
+  203, // K -> Л (192+11)
+  196, // L -> Д (192+4)
+  220, // M -> Ь (192+28)
+  210, // N -> Т (192+18)
+  217, // O -> Щ (192+25)
+  199, // P -> З (192+7)
+  201, // Q -> Й (192+9)
+  202, // R -> К (192+10)
+  219, // S -> Ы (192+27)
+  197, // T -> Е (192+5)
+  195, // U -> Г (192+3)
+  204, // V -> М (192+12)
+  214, // W -> Ц (192+22)
+  215, // X -> Ч (192+23)
+  205, // Y -> Н (192+13)
+  223  // Z -> Я (192+31)
+};
+
+// Windows-1251 punctuation and special characters mapping
+static const struct {
+  uint8_t key;
+  uint8_t normal;
+  uint8_t shift;
+} win1251_russian_punctuation[] = {
+  // Number row with shift symbols: !"№;%:?*()
+  {HID_KEY_1, '1', '!'},   // 1 !
+  {HID_KEY_2, '2', '"'},   // 2 "
+  {HID_KEY_3, '3', 0xB9},  // 3 № (numero sign, Win1251: 185)
+  {HID_KEY_4, '4', ';'},   // 4 ;
+  {HID_KEY_5, '5', '%'},   // 5 %
+  {HID_KEY_6, '6', ':'},   // 6 :
+  {HID_KEY_7, '7', '?'},   // 7 ?
+  {HID_KEY_8, '8', '*'},   // 8 *
+  {HID_KEY_9, '9', '('},   // 9 (
+  {HID_KEY_0, '0', ')'},   // 0 )
+  {HID_KEY_MINUS, '-', '_'},       // - _
+  {HID_KEY_EQUAL, '=', '+'},       // = +
+  
+  // Punctuation keys
+  {HID_KEY_BRACKET_LEFT,  245, 213},   // [ -> х (245), Х (213) 
+  {HID_KEY_BRACKET_RIGHT, 250, 218},   // ] -> ъ (250), Ъ (218)
+  {HID_KEY_SEMICOLON,     230, 198},   // ; -> ж (230), Ж (198)
+  {HID_KEY_APOSTROPHE,    253, 221},   // ' -> э (253), Э (221)
+  {HID_KEY_GRAVE,         184, 168},   // ` -> ё (184), Ё (168)
+  {HID_KEY_BACKSLASH,     92,  47},    // \ -> \, / (note: Russian has \ and /)
+  {HID_KEY_COMMA,         225, 193},   // , -> б (225), Б (193)
+  {HID_KEY_PERIOD,        254, 222},   // . -> ю (254), Ю (222)
+  {HID_KEY_SLASH,         46,  44},    // / -> ., ,
+  {0, 0, 0} // terminator
+};
+
+// KOI8-R Russian keyboard layout mapping (ЙЦУКЕН layout)
+// Maps English QWERTY keys to Russian KOI8-R character codes
+// KOI8-R: lowercase а-я at 192-223, uppercase А-Я at 224-255
+static const uint8_t koi8r_russian_map_lower[26] = {
+  // a-z (HID_KEY_A to HID_KEY_Z) -> Russian lowercase letters
+  198, // a -> ф
+  201, // b -> и  
+  211, // c -> с
+  215, // d -> в
+  213, // e -> у
+  193, // f -> а
+  208, // g -> п
+  210, // h -> р
+  219, // i -> ш
+  207, // j -> о
+  204, // k -> л
+  196, // l -> д
+  216, // m -> ь
+  212, // n -> т
+  221, // o -> щ
+  218, // p -> з
+  202, // q -> й
+  203, // r -> к
+  217, // s -> ы
+  197, // t -> е
+  199, // u -> г
+  205, // v -> м
+  195, // w -> ц
+  222, // x -> ч
+  206, // y -> н
+  209  // z -> я
+};
+
+static const uint8_t koi8r_russian_map_upper[26] = {
+  // A-Z (shift pressed) -> Russian uppercase letters
+  230, // A -> Ф
+  233, // B -> И
+  243, // C -> С
+  247, // D -> В
+  245, // E -> У
+  225, // F -> А
+  240, // G -> П
+  242, // H -> Р
+  251, // I -> Ш
+  239, // J -> О
+  236, // K -> Л
+  228, // L -> Д
+  248, // M -> Ь
+  244, // N -> Т
+  253, // O -> Щ
+  250, // P -> З
+  234, // Q -> Й
+  235, // R -> К
+  249, // S -> Ы
+  229, // T -> Е
+  231, // U -> Г
+  237, // V -> М
+  227, // W -> Ц
+  254, // X -> Ч
+  238, // Y -> Н
+  241  // Z -> Я
+};
+
+// KOI8-R punctuation and special characters mapping
+static const struct {
+  uint8_t key;
+  uint8_t normal;
+  uint8_t shift;
+} koi8r_russian_punctuation[] = {
+  // Number row with shift symbols: !"№;%:?*()
+  {HID_KEY_1, '1', '!'},   // 1 !
+  {HID_KEY_2, '2', '"'},   // 2 "
+  {HID_KEY_3, '3', 0xB3},  // 3 № (numero sign, KOI8-R: 179)
+  {HID_KEY_4, '4', ';'},   // 4 ;
+  {HID_KEY_5, '5', '%'},   // 5 %
+  {HID_KEY_6, '6', ':'},   // 6 :
+  {HID_KEY_7, '7', '?'},   // 7 ?
+  {HID_KEY_8, '8', '*'},   // 8 *
+  {HID_KEY_9, '9', '('},   // 9 (
+  {HID_KEY_0, '0', ')'},   // 0 )
+  {HID_KEY_MINUS, '-', '_'},       // - _
+  {HID_KEY_EQUAL, '=', '+'},       // = +
+  
+  // Punctuation keys
+  {HID_KEY_BRACKET_LEFT,  200, 232},   // [ -> х (200), Х (232) 
+  {HID_KEY_BRACKET_RIGHT, 223, 255},   // ] -> ъ (223), Ъ (255)
+  {HID_KEY_SEMICOLON,     214, 246},   // ; -> ж (214), Ж (246)
+  {HID_KEY_APOSTROPHE,    220, 252},   // ' -> э (220), Э (252)
+  {HID_KEY_GRAVE,         163, 179},   // ` -> ё (163), Ё (179)
+  {HID_KEY_BACKSLASH,     92,  47},    // \ -> \, / (note: Russian has \ and /)
+  {HID_KEY_COMMA,         194, 226},   // , -> б (194), Б (226)
+  {HID_KEY_PERIOD,        192, 224},   // . -> ю (192), Ю (224)
+  {HID_KEY_SLASH,         46,  44},    // / -> ., ,
+  {0, 0, 0} // terminator
+};
+
 
 uint8_t INFLASHFUN keyboard_map_key_ascii(uint16_t k, bool *isaltcode)
 {
@@ -408,14 +633,81 @@ uint8_t INFLASHFUN keyboard_map_key_ascii(uint16_t k, bool *isaltcode)
       bool shift = (modifier & (KEYBOARD_MODIFIER_LEFTSHIFT|KEYBOARD_MODIFIER_RIGHTSHIFT))!=0;
       bool caps  = (key >= HID_KEY_A) && (key <= HID_KEY_Z) && (keyboard_led_status & KEYBOARD_LED_CAPSLOCK)!=0;
 
-      // Apply Russian mapping if Russian mode is active and CP866 font is being used
-      if( russianMode && font_get_current_id() == FONT_ID_CP866 && key >= HID_KEY_A && key <= HID_KEY_Z )
+      // Apply Russian mapping if Russian mode is active and Cyrillic font is being used
+      uint8_t currentFont = font_get_current_id();
+      if( russianMode && (currentFont == FONT_ID_CP866 || currentFont == FONT_ID_WIN1251 || currentFont == FONT_ID_KOI8R) )
         {
-          // Map A-Z keys to Russian CP866 characters
-          if( shift ^ caps )
-            ascii = cp866_russian_map_upper[key - HID_KEY_A];
+          if( key >= HID_KEY_A && key <= HID_KEY_Z )
+            {
+              // Map A-Z keys to Russian characters (CP866, Windows-1251, or KOI8-R)
+              if( currentFont == FONT_ID_CP866 )
+                {
+                  if( shift ^ caps )
+                    ascii = cp866_russian_map_upper[key - HID_KEY_A];
+                  else
+                    ascii = cp866_russian_map_lower[key - HID_KEY_A];
+                }
+              else if( currentFont == FONT_ID_WIN1251 )
+                {
+                  if( shift ^ caps )
+                    ascii = win1251_russian_map_upper[key - HID_KEY_A];
+                  else
+                    ascii = win1251_russian_map_lower[key - HID_KEY_A];
+                }
+              else // FONT_ID_KOI8R
+                {
+                  if( shift ^ caps )
+                    ascii = koi8r_russian_map_upper[key - HID_KEY_A];
+                  else
+                    ascii = koi8r_russian_map_lower[key - HID_KEY_A];
+                }
+            }
           else
-            ascii = cp866_russian_map_lower[key - HID_KEY_A];
+            {
+              // Check punctuation and number keys
+              if( currentFont == FONT_ID_CP866 )
+                {
+                  for(i=0; cp866_russian_punctuation[i].key!=0; i++)
+                    {
+                      if( cp866_russian_punctuation[i].key == key )
+                        {
+                          ascii = shift ? cp866_russian_punctuation[i].shift : cp866_russian_punctuation[i].normal;
+                          break;
+                        }
+                    }
+                }
+              else if( currentFont == FONT_ID_WIN1251 )
+                {
+                  for(i=0; win1251_russian_punctuation[i].key!=0; i++)
+                    {
+                      if( win1251_russian_punctuation[i].key == key )
+                        {
+                          ascii = shift ? win1251_russian_punctuation[i].shift : win1251_russian_punctuation[i].normal;
+                          break;
+                        }
+                    }
+                }
+              else // FONT_ID_KOI8R
+                {
+                  for(i=0; koi8r_russian_punctuation[i].key!=0; i++)
+                    {
+                      if( koi8r_russian_punctuation[i].key == key )
+                        {
+                          ascii = shift ? koi8r_russian_punctuation[i].shift : koi8r_russian_punctuation[i].normal;
+                          break;
+                        }
+                    }
+                }
+              
+              // If not found in Russian punctuation, fall back to standard mapping
+              if( ascii == 0 )
+                {
+                  if( shift ^ caps )
+                    ascii = map->mapShift[key];
+                  else
+                    ascii = map->mapNormal[key];
+                }
+            }
         }
       else
         {
@@ -592,6 +884,19 @@ static void INFLASHFUN keyboard_add_keypress(uint8_t key, uint8_t modifier)
 {
   //print("(%02X%02X-%s)", modifier, key, keyboard_get_keyname(modifier<<8 | key));
 
+  // Check for Alt+Space toggle (mode 4) for Russian input
+  uint8_t currentFont = font_get_current_id();
+  if( key == HID_KEY_SPACE && 
+      (modifier & (KEYBOARD_MODIFIER_LEFTALT | KEYBOARD_MODIFIER_RIGHTALT)) &&
+      config_get_input_method_toggle() == 4 &&
+      (currentFont == FONT_ID_CP866 || currentFont == FONT_ID_WIN1251 || currentFont == FONT_ID_KOI8R) )
+    {
+      russianMode = !russianMode;
+      // Play a tone to indicate language switch
+      sound_play_tone(russianMode ? 1000 : 800, 30, config_get_audible_bell_volume(), false);
+      return; // Don't process the space key
+    }
+
   if( macro_status==MACRO_RECORD_START )
     {
       macro_key    = MACRO_EXTKEY(key, modifier);
@@ -662,12 +967,40 @@ void keyboard_key_change(uint8_t key, bool make)
           else 
             keyboard_modifiers &= ~mod;
           
-          // Toggle Russian mode on Right Alt press (only for CP866 font)
-          if( key == HID_KEY_ALT_RIGHT && make && font_get_current_id() == FONT_ID_CP866 )
+          // Toggle Russian mode based on configured input method toggle key
+          uint8_t currentFont = font_get_current_id();
+          if( make && (currentFont == FONT_ID_CP866 || currentFont == FONT_ID_WIN1251 || currentFont == FONT_ID_KOI8R) )
             {
-              russianMode = !russianMode;
-              // Optional: play a tone to indicate language switch
-              sound_play_tone(russianMode ? 1000 : 800, 30, config_get_audible_bell_volume(), false);
+              bool shouldToggle = false;
+              uint8_t toggleMode = config_get_input_method_toggle();
+              
+              switch(toggleMode)
+                {
+                case 0: // Alt+Shift
+                  shouldToggle = (key == HID_KEY_SHIFT_LEFT || key == HID_KEY_SHIFT_RIGHT) &&
+                                 (keyboard_modifiers & (KEYBOARD_MODIFIER_LEFTALT | KEYBOARD_MODIFIER_RIGHTALT));
+                  break;
+                case 1: // Ctrl+Shift
+                  shouldToggle = (key == HID_KEY_SHIFT_LEFT || key == HID_KEY_SHIFT_RIGHT) &&
+                                 (keyboard_modifiers & (KEYBOARD_MODIFIER_LEFTCTRL | KEYBOARD_MODIFIER_RIGHTCTRL));
+                  break;
+                case 2: // Left Shift + Right Shift
+                  shouldToggle = (key == HID_KEY_SHIFT_LEFT && (keyboard_modifiers & KEYBOARD_MODIFIER_RIGHTSHIFT)) ||
+                                 (key == HID_KEY_SHIFT_RIGHT && (keyboard_modifiers & KEYBOARD_MODIFIER_LEFTSHIFT));
+                  break;
+                case 3: // Right Alt
+                  shouldToggle = (key == HID_KEY_ALT_RIGHT);
+                  break;
+                case 4: // Alt+Space (will be handled in keyboard_add_keypress)
+                  break;
+                }
+              
+              if( shouldToggle )
+                {
+                  russianMode = !russianMode;
+                  // Play a tone to indicate language switch
+                  sound_play_tone(russianMode ? 1000 : 800, 30, config_get_audible_bell_volume(), false);
+                }
             }
         }
       else if( make ) 
@@ -818,7 +1151,8 @@ bool keyboard_alt_pressed(uint16_t key)
 
 bool keyboard_russian_mode()
 {
-  return russianMode && font_get_current_id() == FONT_ID_CP866;
+  uint8_t currentFont = font_get_current_id();
+  return russianMode && (currentFont == FONT_ID_CP866 || currentFont == FONT_ID_WIN1251 || currentFont == FONT_ID_KOI8R);
 }
 
 

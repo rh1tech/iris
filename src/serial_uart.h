@@ -20,8 +20,11 @@
 #ifndef SERIAL_UART
 #define SERIAL_UART
 
+#include <stdint.h>
+#include <stdbool.h>
+
 void serial_uart_set_break(bool set);
-void serial_uart_send_char(char c);
+void serial_uart_send_char(uint8_t c);
 void serial_uart_send_string(const char *s);
 bool serial_uart_readable();
 int  serial_uart_can_send();

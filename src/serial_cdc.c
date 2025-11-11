@@ -58,7 +58,7 @@ void serial_cdc_set_break(bool set)
 }
 
 
-void serial_cdc_send_char(char c)
+void serial_cdc_send_char(uint8_t c)
 {
   if( tud_cdc_connected() )
     {
@@ -88,7 +88,8 @@ void serial_cdc_task(bool processInput)
 {
   if( processInput && tud_inited() && tud_cdc_available() )
     {
-      char count, buf[16];
+      uint8_t count;
+      uint8_t buf[16];
 
       switch( config_get_usb_cdcmode() )
         {

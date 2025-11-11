@@ -153,7 +153,7 @@ static void INFLASHFUN init_cursor(int row, int col)
 }
 
 
-static void INFLASHFUN print_char_vt(char c)
+static void INFLASHFUN print_char_vt(uint8_t c)
 {
   if( cursor_eol ) 
     { 
@@ -239,7 +239,7 @@ void INFLASHFUN terminal_clear_screen()
 }
 
 
-static void INFLASHFUN send_char(char c)
+static void INFLASHFUN send_char(uint8_t c)
 {
   serial_send_char(c);
   if( localecho ) terminal_receive_char(c);
@@ -253,7 +253,7 @@ static void INFLASHFUN send_string(const char *s)
 }
 
 
-static INFLASHFUN void terminal_process_text(char c)
+static INFLASHFUN void terminal_process_text(uint8_t c)
 {
   switch( c )
     {
@@ -643,7 +643,7 @@ static void INFLASHFUN terminal_process_command(char start_char, char final_char
 }
 
 
-void INFLASHFUN terminal_receive_char_vt102(char c)
+void INFLASHFUN terminal_receive_char_vt102(uint8_t c)
 {
   static char    start_char = 0;
   static uint8_t num_params = 0;
@@ -992,7 +992,9 @@ static void INFLASHFUN terminal_receive_char_petscii(uint8_t c)
   static uint8_t inserted = 0;
   static bool quoteMode = false;
 
-  if( c>=192 )
+  // Don't apply PETSCII character transformation for Russian fonts (CP866 or Windows-1251)
+  // Win1251 uppercase (192-223) would be incorrectly transformed by the PETSCII code
+  if( !keyboard_russian_mode() && c>=192 )
     {
       if     ( c<=223 ) c -= 96;
       else if( c<=254 ) c -= 64;
@@ -1241,7 +1243,7 @@ static void INFLASHFUN terminal_receive_char_petscii(uint8_t c)
 }
 
 
-void INFLASHFUN terminal_receive_char(char c)
+void INFLASHFUN terminal_receive_char(uint8_t c)
 {
   if( config_get_terminal_clearBit7() ) c &= 0x7f;
 
@@ -1280,6 +1282,15 @@ static void INFLASHFUN send_cursor_sequence(char c)
 static void INFLASHFUN terminal_process_key_vt(uint16_t key)
 {
   uint8_t c = keyboard_map_key_ascii(key, NULL);
+  
+  // In Russian mode with CP866 font, pass through all Russian characters directly
+  // to avoid interference from special key codes (KEY_UP=0x80, etc. overlap with CP866 range 128-159)
+  if( keyboard_russian_mode() && c >= 128 )
+    {
+      send_char(c);
+      return;
+    }
+  
   switch( c )
     {
     case KEY_UP:     send_cursor_sequence('A'); break;

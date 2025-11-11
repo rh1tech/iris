@@ -21,10 +21,11 @@
 #define SERIAL_CDC_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 bool serial_cdc_is_connected();
 void serial_cdc_set_break(bool set);
-void serial_cdc_send_char(char c);
+void serial_cdc_send_char(uint8_t c);
 void serial_cdc_send_string(const char *c);
 bool serial_cdc_readable();
 

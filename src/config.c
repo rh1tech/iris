@@ -248,7 +248,8 @@ struct SettingsStruct
   struct ProteaStruct
   {
     uint16_t sendCharAfterSplash;
-    uint16_t reserved[8];
+    uint16_t inputMethodToggle;
+    uint16_t reserved[7];
   } Protea;
 
   // must be last (macro data is added starting here)
@@ -267,10 +268,10 @@ union
 
 // -----------------------------------------------------------------------------------------------------------------
 
-#define MI_USERFONT1 11
-#define MI_USERFONT2 12
-#define MI_USERFONT3 13
-#define MI_USERFONT4 14
+#define MI_USERFONT1 10
+#define MI_USERFONT2 11
+#define MI_USERFONT3 12
+#define MI_USERFONT4 13
 
 #define MI_FLASHCOLOR 21
 #define MI_COLOR_MONO_BG 22
@@ -343,7 +344,7 @@ struct MenuItemStruct
   uint16_t *value;
 
   uint16_t min, max, step, def;
-  const char valueLabels[12][40];
+  const char valueLabels[14][40];
 };
 
 #define NUM_MENU_ITEMS(menu) (sizeof(menu) / sizeof(struct MenuItemStruct))
@@ -367,7 +368,6 @@ static int user_font_graphics_mapping_fn(const struct MenuItemStruct *item, int 
 static int user_font_name_fn(const struct MenuItemStruct *item, int callType, int row, int col);
 static int bell_test_fn(const struct MenuItemStruct *item, int callType, int row, int col);
 static int initiate_xmodem_transfer_c_fn(const struct MenuItemStruct *item, int callType, int row, int col);
-static int initiate_xmodem_transfer_nak_fn(const struct MenuItemStruct *item, int callType, int row, int col);
 
 static const struct MenuItemStruct __in_flash(".configmenus") serialMenu[] =
     {{'1', "Baud Rate", 0, NULL, 0, baud_fn},
@@ -475,8 +475,8 @@ static const struct MenuItemStruct __in_flash(".configmenus") userFontMenu[] =
      {'6', "VT100 Graphics Characters", 0, NULL, 0, user_font_graphics_mapping_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") fontMenu[] =
-    {{'1', "Normal Font", 0, NULL, 0, NULL, &settings.Screen.font, 1, 11, 1, 3, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "VGA CP866", "User 1", "User 2", "User 3", "User 4"}},
-     {'2', "Bold Font", 0, NULL, 0, NULL, &settings.Screen.bfont, 0, 11, 1, 0, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "VGA CP866", "User 1", "User 2", "User 3", "User 4"}},
+    {{'1', "Normal Font", 0, NULL, 0, NULL, &settings.Screen.font, 1, 13, 1, 3, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "VGA CP866", "VGA Win1251", "VGA KOI8-R", "User 1", "User 2", "User 3", "User 4"}},
+     {'2', "Bold Font", 0, NULL, 0, NULL, &settings.Screen.bfont, 0, 13, 1, 0, {"None", "CGA (8x8)", "EGA (8x14)", "VGA", "Terminus", "Terminus bold", "PETSCII", "VGA CP866", "VGA Win1251", "VGA KOI8-R", "User 1", "User 2", "User 3", "User 4"}},
      {'3', "Edit User Font 1", MI_USERFONT1, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
      {'4', "Edit User Font 2", MI_USERFONT2, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
      {'5', "Edit User Font 3", MI_USERFONT3, userFontMenu, NUM_MENU_ITEMS(userFontMenu), user_font_menulabel_fn},
@@ -484,8 +484,8 @@ static const struct MenuItemStruct __in_flash(".configmenus") fontMenu[] =
 
 static const struct MenuItemStruct __in_flash(".configmenus") proteaMenu[] =
     {{'1', "Send Character On Start", 0, NULL, 0, NULL, &settings.Protea.sendCharAfterSplash, 0, 1, 1, 1, {"no", "yes"}},
-     {'2', "Initiate XMODEM Transfer (CRC)", 0, NULL, 0, initiate_xmodem_transfer_c_fn},
-     {'3', "Initiate XMODEM Transfer (Checksum)", 0, NULL, 0, initiate_xmodem_transfer_nak_fn}};
+     {'2', "Input Method Toggle Key", 0, NULL, 0, NULL, &settings.Protea.inputMethodToggle, 0, 4, 1, 0, {"Alt+Shift", "Ctrl+Shift", "L.Shift+R.Shift", "Right Alt", "Alt+Space"}},
+     {'3', "Initiate XMODEM Transfer", 0, NULL, 0, initiate_xmodem_transfer_c_fn}};
 
 static const struct MenuItemStruct __in_flash(".configmenus") mainMenu[] =
     {{'1', "Serial", 0, serialMenu, NUM_MENU_ITEMS(serialMenu)},
@@ -619,6 +619,11 @@ uint16_t config_get_terminal_scrolldelay()
 uint16_t config_get_protea_send_char()
 {
   return settings.Protea.sendCharAfterSplash;
+}
+
+uint8_t config_get_input_method_toggle()
+{
+  return settings.Protea.inputMethodToggle;
 }
 
 uint8_t config_get_terminal_default_fg()
@@ -1010,19 +1015,6 @@ static int INFLASHFUN initiate_xmodem_transfer_c_fn(const struct MenuItemStruct 
   else if (callType == IFT_EDIT)
   {
     uint8_t ch = 'C';
-    serial_send_char(ch);
-  }
-  return res;
-}
-
-static int INFLASHFUN initiate_xmodem_transfer_nak_fn(const struct MenuItemStruct *item, int callType, int row, int col)
-{
-  int res = 0;
-  if (callType == IFT_QUERY)
-    res = IFT_EDIT;
-  else if (callType == IFT_EDIT)
-  {
-    uint8_t ch = 0x15; // NAK
     serial_send_char(ch);
   }
   return res;

@@ -69,6 +69,7 @@ bool    config_get_terminal_clearBit7();
 bool    config_get_terminal_uppercase();
 uint16_t config_get_terminal_scrolldelay();
 uint16_t config_get_protea_send_char();
+uint8_t config_get_input_method_toggle();
 uint8_t config_get_terminal_default_fg();
 uint8_t config_get_terminal_default_bg();
 uint8_t config_get_terminal_default_attr();

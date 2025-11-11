@@ -64,7 +64,7 @@ int serial_uart_can_send()
 }
 
 
-void serial_uart_send_char(char c)
+void serial_uart_send_char(uint8_t c)
 {
   if( uart_is_writable(PIN_UART_ID) && queue_is_empty(&uart_tx_queue) )
     {

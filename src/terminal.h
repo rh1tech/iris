@@ -20,7 +20,9 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-void terminal_receive_char(char c);
+#include <stdint.h>
+
+void terminal_receive_char(uint8_t c);
 void terminal_receive_string(const char* str);
 void terminal_process_key(uint16_t key);
 

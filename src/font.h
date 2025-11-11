@@ -33,10 +33,12 @@
 #define FONT_ID_TERMBOLD 5
 #define FONT_ID_PETSCII  6
 #define FONT_ID_CP866    7
-#define FONT_ID_USER1    8
-#define FONT_ID_USER2    9
-#define FONT_ID_USER3    10
-#define FONT_ID_USER4    11
+#define FONT_ID_WIN1251  8
+#define FONT_ID_KOI8R    9
+#define FONT_ID_USER1    10
+#define FONT_ID_USER2    11
+#define FONT_ID_USER3    12
+#define FONT_ID_USER4    13
 
 uint8_t        font_get_current_id();
 bool           font_have_boldfont();
