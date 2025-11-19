@@ -446,13 +446,18 @@ static bool INFLASHFUN set_font_data(uint32_t font_offset, uint32_t bitmapWidth,
             uint32_t offset = cr*256*8+cn;
             uint8_t d   = bitmapData[br*bitmapWidth/8+bc];
             if( framebuf_is_dvi() ) d = reverse_bits(d);
-            uint8_t du  = cr==underlineRow ? 255 : d;
+            // For DOS-style cursor: fill bottom 3 rows for underline
+            uint8_t du;
+            if( cr >= underlineRow-2 && cr <= underlineRow )
+              du = 255;  // Bottom 3 rows filled
+            else
+              du = d;     // Normal character data
             font_blinkoff[font_offset+offset+256*0] = d;
-            font_blinkoff[font_offset+offset+256*1] = du;
+            font_blinkoff[font_offset+offset+256*1] = d;   // Underline OFF when blinking off
             font_blinkoff[font_offset+offset+256*2] = d;
             font_blinkoff[font_offset+offset+256*3] = du;
             font_blinkon[font_offset+offset+256*0]  = d;
-            font_blinkon[font_offset+offset+256*1]  = du;
+            font_blinkon[font_offset+offset+256*1]  = du;  // Underline ON when blinking on
             font_blinkon[font_offset+offset+256*2]  = ~d;
             font_blinkon[font_offset+offset+256*3]  = ~du;
           }
