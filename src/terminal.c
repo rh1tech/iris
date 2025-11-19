@@ -78,7 +78,8 @@ static void INFLASHFUN show_cursor(bool show)
   switch( config_get_terminal_cursortype() )
     {
     case 1: attr = ATTR_BLINK; break;
-    case 2: attr = ATTR_UNDERLINE; break;
+    case 2: 
+    case 3: attr = ATTR_UNDERLINE; break;
     }
   
   framebuf_set_attr(cursor_col, cursor_row, show ? (cur_attr ^ attr) : cur_attr);

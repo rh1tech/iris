@@ -396,7 +396,7 @@ static const struct MenuItemStruct __in_flash(".configmenus") terminalMenu[] =
      {'6', "Clear Received Bit 7", 0, NULL, 0, NULL, &settings.Terminal.clearBit7, 0, 1, 1, 0, {"off", "on"}},
      {'7', "Send All Uppercase", 0, NULL, 0, NULL, &settings.Terminal.uppercase, 0, 1, 1, 0, {"off", "on"}},
      {'8', "Local Echo", 0, NULL, 0, NULL, &settings.Terminal.echo, 0, 1, 1, 0, {"off", "on"}},
-     {'9', "Cursor Shape", 0, NULL, 0, NULL, &settings.Terminal.cursor, 0, 2, 1, 0, {"static box", "blinking box", "underline"}},
+     {'9', "Cursor Shape", 0, NULL, 0, NULL, &settings.Terminal.cursor, 0, 3, 1, 3, {"static box", "blinking box", "underline", "DOS (block)"}},
      {'a', "Smooth Scroll Delay (ms)", 0, NULL, 0, NULL, &settings.Terminal.scrolldelay, 0, 1000, 10, 170},
      {'b', "Default Background Color", 0, NULL, 0, color16_fn, &settings.Terminal.bgcolor, 0, 15, 1, 0},
      {'c', "Default Text Color", 0, NULL, 0, color16_fn, &settings.Terminal.fgcolor, 0, 15, 1, 7},
