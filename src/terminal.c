@@ -371,9 +371,9 @@ static void INFLASHFUN terminal_process_command(char start_char, char final_char
               // break;
               
             case 25: // show/hide cursor
-              cursor_shown = enabled;
-              show_cursor(cursor_shown);
-              break;
+              // Cursor visibility is controlled by user configuration only
+              // Remote applications should not control cursor visibility
+              // break;
             }
         }
       else if( start_char==0 )
