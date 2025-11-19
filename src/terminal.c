@@ -365,9 +365,10 @@ static void INFLASHFUN terminal_process_command(char start_char, char final_char
               auto_wrap_mode = enabled; 
               break;
 
-            case 12: // local echo (send-receive mode)
-              localecho = !enabled;
-              break;
+            // case 12: // local echo (send-receive mode) - DISABLED
+              // Remote applications should not control local echo setting
+              // Local echo is controlled by user configuration only
+              // break;
               
             case 25: // show/hide cursor
               cursor_shown = enabled;
